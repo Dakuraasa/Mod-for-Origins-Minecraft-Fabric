@@ -23,13 +23,39 @@ jobs:
         with:
           gradle-version: "8.10"
 
-      - name: Inspect Apoli EntityAction API
+      - name: Resolve dependencies
+        run: gradle dependencies --no-daemon
+        continue-on-error: true
+
+      - name: Inspect Apoli EntityAction + Registries API
         run: |
           JAR=$(find ~/.gradle -iname "apoli-*.jar" | grep -v sources | head -n 1)
-          echo "Using jar: $JAR"
+          echo "Using apoli jar: $JAR"
           mkdir -p /tmp/apoli-extract
           cd /tmp/apoli-extract
-          unzip -o -q "$JAR" "io/github/apace100/apoli/action/*"
+          unzip -o -q "$JAR" "io/github/apace100/apoli/action/*" "io/github/apace100/apoli/registry/*"
+          echo ">>> EntityAction and related classes:"
+          find . -path "*/action/*" -name "*.class" | while read f; do
+            echo "===== $f ====="
+            javap -p "$f" || true
+          done
+          echo ">>> ApoliRegistries and related classes:"
+          find . -path "*/registry/*" -name "*.class" | while read f; do
+            echo "===== $f ====="
+            javap -p "$f" || true
+          done
+        continue-on-error: true
+
+      - name: Inspect vanilla Enchantment class
+        run: |
+          MCJAR=$(find ~/.gradle ~/.gradle-loom . -iname "*minecraft*mapped*.jar" 2>/dev/null | grep -v sources | head -n 1)
+          if [ -z "$MCJAR" ]; then
+            MCJAR=$(find / -iname "*minecraft*mapped*.jar" 2>/dev/null | grep -v sources | head -n 1)
+          fi
+          echo "Using minecraft jar: $MCJAR"
+          mkdir -p /tmp/mc-extract
+          cd /tmp/mc-extract
+          unzip -o -q "$MCJAR" "net/minecraft/enchantment/Enchantment*.class"
           find . -name "*.class" | while read f; do
             echo "===== $f ====="
             javap -p "$f" || true
