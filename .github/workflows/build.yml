@@ -18,23 +18,16 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        continue-on-error: true
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10
 
       - name: Build with Gradle
-        run: |
-          if [ ! -f "./gradlew" ]; then
-            gradle wrapper --gradle-version 8.8
-            chmod +x gradlew
-          fi
-          ./gradlew build --stacktrace
+        run: gradle build --no-daemon
 
       - name: Upload built jar
         uses: actions/upload-artifact@v4
         with:
-          name: fallen-angel-origin-jar
+          name: mod-jar
           path: build/libs/*.jar
