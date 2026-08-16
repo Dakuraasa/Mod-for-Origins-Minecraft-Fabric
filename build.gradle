@@ -44,6 +44,10 @@ repositories {
         name = "Quilt"
         url = "https://maven.quiltmc.org/repository/release"
     }
+    maven {
+        name = "Carpet"
+        url = "https://masa.dy.fi/maven"
+    }
 }
 
 dependencies {
