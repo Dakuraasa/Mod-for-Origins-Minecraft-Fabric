@@ -29,18 +29,6 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ==========================================================================
- *  READ ME BEFORE COMPILING
- * ==========================================================================
- * Reescrito para a API nova do Apoli (2.12.x / MC 1.21.1), que trocou o
- * antigo sistema de ActionFactory por classes de ação (EntityAction) com
- * um metodo accept(EntityActionContext). Se o registro em register()
- * nao bater exatamente com a assinatura de DataObjectFactory.simple(...)
- * dessa versao, o erro do compilador vai apontar exatamente onde -
- * me manda esse erro que eu ajusto.
- * ==========================================================================
- */
 public class DivineEnchantAction extends EntityAction {
 
     public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
@@ -53,7 +41,11 @@ public class DivineEnchantAction extends EntityAction {
         Registry.register(
                 ApoliRegistries.ENTITY_ACTION,
                 ID,
-                DataObjectFactory.simple(new SerializableData(), DivineEnchantAction::new)
+                DataObjectFactory.simple(
+                        new SerializableData(),
+                        DivineEnchantAction::new,
+                        (action, data) -> data.new Instance()
+                )
         );
     }
 
