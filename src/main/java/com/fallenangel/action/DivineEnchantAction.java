@@ -29,110 +29,110 @@ import java.util.List;
 
 public class DivineEnchantAction extends EntityActionType {
 
-    public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
+	public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
 
-    public static final ActionConfiguration<DivineEnchantAction> CONFIG =
-            ActionConfiguration.simple(ID, DivineEnchantAction::new);
+	public static final ActionConfiguration<DivineEnchantAction> CONFIG =
+			ActionConfiguration.simple(ID, DivineEnchantAction::new);
 
-    public static void register() {
-        Registry.register(ApoliRegistries.ENTITY_ACTION_TYPE, ID, new DivineEnchantAction());
-    }
+	public static void register() {
+		Registry.register(ApoliRegistries.ENTITY_ACTION_TYPE, ID, CONFIG);
+	}
 
-    @Override
-    public ActionConfiguration<?> getConfig() {
-        return CONFIG;
-    }
+	@Override
+	public ActionConfiguration<?> getConfig() {
+		return CONFIG;
+	}
 
-    @Override
-    public void accept(EntityActionContext context) {
-        Entity entity = context.entity();
-        if (!(entity instanceof PlayerEntity player)) {
-            return;
-        }
-        World world = player.getWorld();
-        if (world.isClient || !(world instanceof ServerWorld serverWorld)) {
-            return;
-        }
+	@Override
+	public void accept(EntityActionContext context) {
+		Entity entity = context.entity();
+		if (!(entity instanceof PlayerEntity player)) {
+			return;
+		}
+		World world = player.getWorld();
+		if (world.isClient || !(world instanceof ServerWorld serverWorld)) {
+			return;
+		}
 
-        ItemStack stack = player.getMainHandStack();
-        if (stack.isEmpty()) {
-            return;
-        }
+		ItemStack stack = player.getMainHandStack();
+		if (stack.isEmpty()) {
+			return;
+		}
 
-        if (stack.isOf(Items.APPLE)) {
-            transformAppleToEnchantedGoldenApple(player, stack, serverWorld);
-            return;
-        }
+		if (stack.isOf(Items.APPLE)) {
+			transformAppleToEnchantedGoldenApple(player, stack, serverWorld);
+			return;
+		}
 
-        RegistryEntry<Enchantment> chosen = pickRandomValidEnchantment(serverWorld, stack, player.getRandom());
-        if (chosen == null) {
-            return;
-        }
+		RegistryEntry<Enchantment> chosen = pickRandomValidEnchantment(serverWorld, stack, player.getRandom());
+		if (chosen == null) {
+			return;
+		}
 
-        int maxLevel = chosen.value().getMaxLevel();
-        int level = 1 + player.getRandom().nextInt(Math.max(1, maxLevel));
+		int maxLevel = chosen.value().getMaxLevel();
+		int level = 1 + player.getRandom().nextInt(Math.max(1, maxLevel));
 
-        ItemEnchantmentsComponent existing =
-                stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-        ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(existing);
-        builder.set(chosen, level);
-        stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
+		ItemEnchantmentsComponent existing =
+				stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+		ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(existing);
+		builder.set(chosen, level);
+		stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
 
-        spawnDivineSparkles(serverWorld, player);
-    }
+		spawnDivineSparkles(serverWorld, player);
+	}
 
-    private static RegistryEntry<Enchantment> pickRandomValidEnchantment(ServerWorld world, ItemStack stack, Random random) {
-        Registry<Enchantment> enchantmentRegistry = world.getRegistryManager().get(RegistryKeys.ENCHANTMENT);
-        ItemEnchantmentsComponent current =
-                stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+	private static RegistryEntry<Enchantment> pickRandomValidEnchantment(ServerWorld world, ItemStack stack, Random random) {
+		Registry<Enchantment> enchantmentRegistry = world.getRegistryManager().get(RegistryKeys.ENCHANTMENT);
+		ItemEnchantmentsComponent current =
+				stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
 
-        List<RegistryEntry<Enchantment>> valid = new ArrayList<>();
-        for (RegistryEntry<Enchantment> entry : enchantmentRegistry.streamEntries().toList()) {
-            Enchantment enchantment = entry.value();
+		List<RegistryEntry<Enchantment>> valid = new ArrayList<>();
+		for (RegistryEntry<Enchantment> entry : enchantmentRegistry.streamEntries().toList()) {
+			Enchantment enchantment = entry.value();
 
-            if (!isPrimaryItemFor(entry, stack)) {
-                continue;
-            }
+			if (!isPrimaryItemFor(entry, stack)) {
+				continue;
+			}
 
-            int existingLevel = current.getLevel(entry);
-            if (existingLevel >= enchantment.getMaxLevel()) {
-                continue;
-            }
+			int existingLevel = current.getLevel(entry);
+			if (existingLevel >= enchantment.getMaxLevel()) {
+				continue;
+			}
 
-            valid.add(entry);
-        }
+			valid.add(entry);
+		}
 
-        if (valid.isEmpty()) {
-            return null;
-        }
-        return valid.get(random.nextInt(valid.size()));
-    }
+		if (valid.isEmpty()) {
+			return null;
+		}
+		return valid.get(random.nextInt(valid.size()));
+	}
 
-    private static boolean isPrimaryItemFor(RegistryEntry<Enchantment> entry, ItemStack stack) {
-        var primaryItems = entry.value().definition().primaryItems();
-        if (primaryItems.isEmpty()) {
-            RegistryEntryList<net.minecraft.item.Item> supported = entry.value().definition().supportedItems();
-            return supported.contains(stack.getRegistryEntry());
-        }
-        RegistryEntryList<net.minecraft.item.Item> primary = primaryItems.get();
-        return primary.contains(stack.getRegistryEntry());
-    }
+	private static boolean isPrimaryItemFor(RegistryEntry<Enchantment> entry, ItemStack stack) {
+		var primaryItems = entry.value().definition().primaryItems();
+		if (primaryItems.isEmpty()) {
+			RegistryEntryList<net.minecraft.item.Item> supported = entry.value().definition().supportedItems();
+			return supported.contains(stack.getRegistryEntry());
+		}
+		RegistryEntryList<net.minecraft.item.Item> primary = primaryItems.get();
+		return primary.contains(stack.getRegistryEntry());
+	}
 
-    private static void transformAppleToEnchantedGoldenApple(PlayerEntity player, ItemStack apple, ServerWorld world) {
-        apple.decrement(1);
-        ItemStack goldenApple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1);
-        if (!player.getInventory().insertStack(goldenApple)) {
-            player.dropItem(goldenApple, false);
-        }
-        spawnDivineSparkles(world, player);
-    }
+	private static void transformAppleToEnchantedGoldenApple(PlayerEntity player, ItemStack apple, ServerWorld world) {
+		apple.decrement(1);
+		ItemStack goldenApple = new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1);
+		if (!player.getInventory().insertStack(goldenApple)) {
+			player.dropItem(goldenApple, false);
+		}
+		spawnDivineSparkles(world, player);
+	}
 
-    private static void spawnDivineSparkles(ServerWorld world, PlayerEntity player) {
-        double x = player.getX();
-        double y = player.getBodyY(0.5D);
-        double z = player.getZ();
+	private static void spawnDivineSparkles(ServerWorld world, PlayerEntity player) {
+		double x = player.getX();
+		double y = player.getBodyY(0.5D);
+		double z = player.getZ();
 
-        world.spawnParticles(ParticleTypes.WITCH, x, y, z, 12, 0.4, 0.6, 0.4, 0.01);
-        world.spawnParticles(ParticleTypes.END_ROD, x, y, z, 10, 0.4, 0.6, 0.4, 0.01);
-    }
+		world.spawnParticles(ParticleTypes.WITCH, x, y, z, 12, 0.4, 0.6, 0.4, 0.01);
+		world.spawnParticles(ParticleTypes.END_ROD, x, y, z, 10, 0.4, 0.6, 0.4, 0.01);
+	}
 }
