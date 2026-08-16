@@ -2,6 +2,10 @@
   "type": "origins:attribute",
   "name": "Heavenly Resilience",
   "description": "The remnants of your celestial form provide natural protection.",
+  "hidden": false,
+  "hud_render": {
+    "should_render": false
+  },
   "modifier": {
     "attribute": "minecraft:generic.armor",
     "value": 2.0,
