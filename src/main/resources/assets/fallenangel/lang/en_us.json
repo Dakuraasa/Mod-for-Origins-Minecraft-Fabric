@@ -1,3 +1,9 @@
 {
-  "item.fallenangel.fallen_angel_icon": "Fallen Angel Emblem"
+  "item.fallenangel.fallen_angel_icon": "Fallen Angel Emblem",
+  "origin.fallenangel.fallen_angel": "Fallen Angel",
+  "origin.fallenangel.fallen_angel.description": "A celestial being who fell from grace. Touched by divine power, you retain fragments of your former glory.",
+  "power.fallenangel.divine_affinity": "Divine Affinity",
+  "power.fallenangel.divine_affinity.description": "Your divine nature grants you increased health.",
+  "power.fallenangel.heavenly_resilience": "Heavenly Resilience",
+  "power.fallenangel.heavenly_resilience.description": "The remnants of your celestial form provide natural protection."
 }
