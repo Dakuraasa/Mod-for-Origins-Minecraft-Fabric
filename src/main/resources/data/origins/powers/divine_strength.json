@@ -1,0 +1,20 @@
+{
+  "type": "origins:conditioned_attribute",
+  "name": "Divine Strength",
+  "description": "You hit harder than a normal player. This bonus disappears in the Nether.",
+  "modifier": {
+    "id": "fallenangel:divine_strength",
+    "attribute": "minecraft:generic.attack_damage",
+    "operation": "add_value",
+    "value": 2.0
+  },
+  "update_health": false,
+  "tick_rate": 20,
+  "condition": {
+    "type": "origins:not",
+    "condition": {
+      "type": "origins:dimension",
+      "dimension": "minecraft:the_nether"
+    }
+  }
+}

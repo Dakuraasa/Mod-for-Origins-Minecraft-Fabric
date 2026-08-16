@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "fallenangel",
+  "version": "${version}",
+  "name": "Fallen Angel Origin",
+  "description": "Adds the Fallen Angel race/origin as an addon for the Origins mod.",
+  "authors": ["You"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/fallenangel/textures/item/fallen_angel_icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.fallenangel.FallenAngelMod"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "origins": "*",
+    "apoli": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"]
+    }
+  }
+}

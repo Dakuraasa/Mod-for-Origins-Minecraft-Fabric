@@ -1,0 +1,24 @@
+{
+  "type": "origins:modify_damage_dealt",
+  "name": "Undead Slayer",
+  "description": "You deal extra damage to undead creatures. This bonus disappears in the Nether.",
+  "modifier": {
+    "name": "Undead slayer bonus",
+    "operation": "addition",
+    "value": 3.0
+  },
+  "bientity_condition": {
+    "type": "origins:target_condition",
+    "condition": {
+      "type": "origins:entity_group",
+      "entity_group": "undead"
+    }
+  },
+  "condition": {
+    "type": "origins:not",
+    "condition": {
+      "type": "origins:dimension",
+      "dimension": "minecraft:the_nether"
+    }
+  }
+}

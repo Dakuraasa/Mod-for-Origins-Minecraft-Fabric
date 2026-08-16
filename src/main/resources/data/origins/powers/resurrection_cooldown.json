@@ -1,0 +1,9 @@
+{
+  "type": "origins:cooldown",
+  "hidden": true,
+  "cooldown": 1200,
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 5
+  }
+}

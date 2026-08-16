@@ -1,0 +1,30 @@
+{
+  "type": "origins:walk_on_fluid",
+  "name": "Walk on Water",
+  "description": "You can walk on the surface of water. Sneak to dive in and swim normally. Does not work in the Nether.",
+  "fluid": "minecraft:water",
+  "condition": {
+    "type": "origins:and",
+    "conditions": [
+      {
+        "type": "origins:not",
+        "condition": {
+          "type": "origins:dimension",
+          "dimension": "minecraft:the_nether"
+        }
+      },
+      {
+        "type": "origins:not",
+        "condition": {
+          "type": "origins:sneaking"
+        }
+      },
+      {
+        "type": "origins:fluid_height",
+        "fluid": "minecraft:water",
+        "comparison": "<=",
+        "compare_to": 0.4
+      }
+    ]
+  }
+}

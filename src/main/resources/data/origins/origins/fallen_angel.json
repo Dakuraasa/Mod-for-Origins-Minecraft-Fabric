@@ -1,0 +1,18 @@
+{
+  "powers": [
+    "fallenangel:extra_hearts",
+    "fallenangel:divine_strength",
+    "fallenangel:undead_slayer",
+    "fallenangel:resurrection_cooldown",
+    "fallenangel:resurrection",
+    "fallenangel:divine_enchant",
+    "fallenangel:walk_on_water"
+  ],
+  "icon": {
+    "item": "fallenangel:fallen_angel_icon"
+  },
+  "order": 100,
+  "impact": 3,
+  "name": "Fallen Angel",
+  "description": "A once-heavenly being cast down to the mortal world. Strong, resilient, and touched by grace - but that grace abandons them entirely within the Nether."
+}

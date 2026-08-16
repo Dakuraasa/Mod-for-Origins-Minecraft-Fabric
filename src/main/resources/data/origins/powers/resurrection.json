@@ -1,0 +1,88 @@
+{
+  "type": "origins:prevent_death",
+  "name": "Angelic Resurrection",
+  "description": "Fatal damage instead leaves you at half a heart, in a burst of purple and white light. Has a 1 minute cooldown. Does not work in the Nether.",
+  "condition": {
+    "type": "origins:and",
+    "conditions": [
+      {
+        "type": "origins:not",
+        "condition": {
+          "type": "origins:dimension",
+          "dimension": "minecraft:the_nether"
+        }
+      },
+      {
+        "type": "origins:resource",
+        "resource": "fallenangel:resurrection_cooldown",
+        "comparison": "==",
+        "compare_to": 0
+      }
+    ]
+  },
+  "entity_action": {
+    "type": "origins:and",
+    "actions": [
+      {
+        "type": "origins:trigger_cooldown",
+        "power": "fallenangel:resurrection_cooldown"
+      },
+      {
+        "type": "origins:clear_effect"
+      },
+      {
+        "type": "origins:apply_effect",
+        "effects": [
+          {
+            "effect": "minecraft:regeneration",
+            "amplifier": 1,
+            "duration": 900
+          },
+          {
+            "effect": "minecraft:absorption",
+            "amplifier": 1,
+            "duration": 100
+          }
+        ]
+      },
+      {
+        "type": "origins:spawn_particles",
+        "particle": {
+          "type": "minecraft:dust",
+          "params": {
+            "color": [0.78, 0.64, 0.92],
+            "scale": 1.3
+          }
+        },
+        "count": 40,
+        "speed": 0.05,
+        "force": true,
+        "spread": {
+          "x": 0.6,
+          "y": 1.0,
+          "z": 0.6
+        }
+      },
+      {
+        "type": "origins:spawn_particles",
+        "particle": {
+          "type": "minecraft:end_rod"
+        },
+        "count": 25,
+        "speed": 0.03,
+        "force": true,
+        "spread": {
+          "x": 0.6,
+          "y": 1.0,
+          "z": 0.6
+        }
+      },
+      {
+        "type": "origins:play_sound",
+        "sound": "minecraft:item.totem.use",
+        "volume": 1.0,
+        "pitch": 1.4
+      }
+    ]
+  }
+}

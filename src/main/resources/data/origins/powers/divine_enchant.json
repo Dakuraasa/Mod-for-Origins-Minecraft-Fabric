@@ -1,0 +1,23 @@
+{
+  "type": "origins:active_self",
+  "name": "Divine Enchantment",
+  "description": "Blesses the weapon or tool in your hand with a random enchantment. Turns a plain Apple into an Enchanted Golden Apple. 1 minute cooldown. Does not work in the Nether.",
+  "entity_action": {
+    "type": "fallenangel:divine_enchant"
+  },
+  "cooldown": 1200,
+  "hud_render": {
+    "should_render": true,
+    "bar_index": 6
+  },
+  "key": {
+    "key": "key.origins.primary_active"
+  },
+  "condition": {
+    "type": "origins:not",
+    "condition": {
+      "type": "origins:dimension",
+      "dimension": "minecraft:the_nether"
+    }
+  }
+}

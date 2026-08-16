@@ -1,0 +1,64 @@
+plugins {
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // Origins / Apoli / Calio are published to the Modrinth maven.
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
+    // Fallback in case a build is only published to CurseForge:
+    // (requires the CurseForge Gradle plugin / cursemaven if used instead)
+    maven {
+        name = 'CurseMaven'
+        url = 'https://www.cursemaven.com'
+    }
+}
+
+dependencies {
+    // Minecraft / Fabric toolchain
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Origins mod + its dependencies (Apoli, Calio)
+    // Artifact coordinates on the Modrinth maven follow the pattern:
+    //   maven.modrinth:<project-slug>:<version-number-or-id>
+    modImplementation "maven.modrinth:origins-fabric:${project.origins_version}"
+    modImplementation "maven.modrinth:apoli:${project.apoli_version}"
+    modImplementation "maven.modrinth:calio:${project.calio_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${archivesName.get()}" }
+    }
+}
