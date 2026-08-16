@@ -48,11 +48,13 @@ jobs:
 
       - name: Inspect vanilla Enchantment class
         run: |
-          MCJAR=$(find ~/.gradle ~/.gradle-loom . -iname "*minecraft*mapped*.jar" 2>/dev/null | grep -v sources | head -n 1)
-          if [ -z "$MCJAR" ]; then
-            MCJAR=$(find / -iname "*minecraft*mapped*.jar" 2>/dev/null | grep -v sources | head -n 1)
-          fi
+          MCJAR=$(find ~/.gradle -iname "*mapped*.jar" 2>/dev/null | grep -v sources | head -n 1)
           echo "Using minecraft jar: $MCJAR"
+          if [ -z "$MCJAR" ]; then
+            echo "Nenhum jar mapeado encontrado. Listando candidatos:"
+            find ~/.gradle -iname "*.jar" 2>/dev/null | grep -i minecraft
+            exit 0
+          fi
           mkdir -p /tmp/mc-extract
           cd /tmp/mc-extract
           unzip -o -q "$MCJAR" "net/minecraft/enchantment/Enchantment*.class"
