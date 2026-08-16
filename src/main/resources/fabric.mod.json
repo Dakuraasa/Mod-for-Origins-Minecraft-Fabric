@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Fallen Angel Origin",
   "description": "Adds the Fallen Angel race/origin as an addon for the Origins mod.",
-  "authors": ["You"],
+  "authors": ["Dakuraasa"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/fallenangel/textures/item/fallen_angel_icon.png",
