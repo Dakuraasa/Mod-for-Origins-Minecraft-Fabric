@@ -2,11 +2,10 @@ package com.fallenangel.action;
 
 import com.fallenangel.FallenAngelMod;
 
-import io.github.apace100.apoli.action.EntityAction;
+import io.github.apace100.apoli.action.ActionConfiguration;
 import io.github.apace100.apoli.action.context.EntityActionContext;
+import io.github.apace100.apoli.action.type.EntityActionType;
 import io.github.apace100.apoli.registry.ApoliRegistries;
-import io.github.apace100.calio.data.SerializableData;
-import io.github.apace100.calio.registry.DataObjectFactory;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -20,7 +19,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
@@ -29,24 +27,20 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DivineEnchantAction extends EntityAction {
+public class DivineEnchantAction extends EntityActionType {
 
     public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
 
-    public DivineEnchantAction(SerializableData.Instance data) {
-        super(data);
-    }
+    public static final ActionConfiguration<DivineEnchantAction> CONFIG =
+            ActionConfiguration.simple(ID, DivineEnchantAction::new);
 
     public static void register() {
-        Registry.register(
-                ApoliRegistries.ENTITY_ACTION,
-                ID,
-                DataObjectFactory.simple(
-                        new SerializableData(),
-                        DivineEnchantAction::new,
-                        (action, data) -> data.new Instance()
-                )
-        );
+        Registry.register(ApoliRegistries.ENTITY_ACTION_TYPE, ID, CONFIG);
+    }
+
+    @Override
+    public ActionConfiguration<?> getConfig() {
+        return CONFIG;
     }
 
     @Override
@@ -65,7 +59,6 @@ public class DivineEnchantAction extends EntityAction {
             return;
         }
 
-        // --- Special case: plain Apple -> Enchanted Golden Apple ---
         if (stack.isOf(Items.APPLE)) {
             transformAppleToEnchantedGoldenApple(player, stack, serverWorld);
             return;
@@ -106,10 +99,6 @@ public class DivineEnchantAction extends EntityAction {
                 continue;
             }
 
-            if (conflictsWithExisting(entry, current)) {
-                continue;
-            }
-
             valid.add(entry);
         }
 
@@ -127,24 +116,6 @@ public class DivineEnchantAction extends EntityAction {
         }
         RegistryEntryList<net.minecraft.item.Item> primary = primaryItems.get();
         return primary.contains(stack.getRegistryEntry());
-    }
-
-    private static boolean conflictsWithExisting(RegistryEntry<Enchantment> candidate,
-                                                   ItemEnchantmentsComponent current) {
-        for (RegistryEntry<Enchantment> existingEnchant : current.getEnchantments()) {
-            if (existingEnchant.equals(candidate)) {
-                continue;
-            }
-            TagKey<Enchantment> exclusiveSet = candidate.value().definition().exclusiveSet().orElse(null);
-            if (exclusiveSet != null && existingEnchant.isIn(exclusiveSet)) {
-                return true;
-            }
-            TagKey<Enchantment> otherExclusiveSet = existingEnchant.value().definition().exclusiveSet().orElse(null);
-            if (otherExclusiveSet != null && candidate.isIn(otherExclusiveSet)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static void transformAppleToEnchantedGoldenApple(PlayerEntity player, ItemStack apple, ServerWorld world) {
