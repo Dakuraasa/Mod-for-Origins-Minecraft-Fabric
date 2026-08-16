@@ -11,37 +11,44 @@ base {
 }
 
 repositories {
-    // Origins / Apoli / Calio are published to the Modrinth maven.
     maven {
-        name = 'Modrinth'
-        url = 'https://api.modrinth.com/maven'
+        name = "Ladysnake Libs"
+        url = 'https://maven.ladysnake.org/releases'
     }
-    // Fallback in case a build is only published to CurseForge:
-    // (requires the CurseForge Gradle plugin / cursemaven if used instead)
     maven {
-        name = 'CurseMaven'
-        url = 'https://www.cursemaven.com'
+        url = 'https://maven.cafeteria.dev'
+        content {
+            includeGroup 'net.adriantodt.fabricmc'
+        }
+    }
+    maven {
+        url "https://maven.jamieswhiteshirt.com/libs-release"
+        content {
+            includeGroup "com.jamieswhiteshirt"
+        }
+    }
+    maven {
+        url "https://jitpack.io"
+    }
+    maven {
+        url "https://maven.shedaniel.me/"
+    }
+    maven {
+        url "https://maven.terraformersmc.com/"
     }
 }
 
 dependencies {
-    // Minecraft / Fabric toolchain
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // Origins mod + its dependencies (Apoli, Calio)
-    // Artifact coordinates on the Modrinth maven follow the pattern:
-    //   maven.modrinth:<project-slug>:<version-number-or-id>
-    modImplementation "maven.modrinth:origins-fabric:${project.origins_version}"
-    modImplementation "maven.modrinth:apoli:${project.apoli_version}"
-    modImplementation "maven.modrinth:calio:${project.calio_version}"
+    modImplementation "io.github.apace100:origins-fabric:${project.origins_version}"
 }
 
 processResources {
     inputs.property 'version', project.version
-
     filesMatching('fabric.mod.json') {
         expand 'version': project.version
     }
