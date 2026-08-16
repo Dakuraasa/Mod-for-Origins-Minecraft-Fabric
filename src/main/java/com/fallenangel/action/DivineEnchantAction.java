@@ -31,7 +31,7 @@ public class DivineEnchantAction extends EntityActionType {
 
 	public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
 
-	public static final ActionConfiguration<DivineEnchantAction> CONFIG =
+	public static final ActionConfiguration<EntityActionType> CONFIG =
 			ActionConfiguration.simple(ID, DivineEnchantAction::new);
 
 	public static void register() {
