@@ -1,0 +1,10 @@
+{
+  "type": "origins:attribute",
+  "name": "Divine Affinity",
+  "description": "Your divine nature grants you increased magical resistance.",
+  "modifier": {
+    "attribute": "minecraft:generic.max_health",
+    "value": 4.0,
+    "operation": "add_value"
+  }
+}
