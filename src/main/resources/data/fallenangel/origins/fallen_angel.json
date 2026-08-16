@@ -1,0 +1,11 @@
+{
+  "name": "Fallen Angel",
+  "description": "A celestial being who fell from grace. Touched by divine power, you retain fragments of your former glory.",
+  "icon": "fallenangel:fallen_angel_icon",
+  "order": 0,
+  "impact": 2,
+  "powers": [
+    "fallenangel:divine_affinity",
+    "fallenangel:heavenly_resilience"
+  ]
+}
