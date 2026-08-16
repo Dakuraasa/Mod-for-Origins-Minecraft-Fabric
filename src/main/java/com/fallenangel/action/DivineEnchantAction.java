@@ -2,9 +2,11 @@ package com.fallenangel.action;
 
 import com.fallenangel.FallenAngelMod;
 
-import io.github.apace100.apoli.power.factory.action.ActionFactory;
+import io.github.apace100.apoli.action.EntityAction;
+import io.github.apace100.apoli.action.context.EntityActionContext;
 import io.github.apace100.apoli.registry.ApoliRegistries;
 import io.github.apace100.calio.data.SerializableData;
+import io.github.apace100.calio.registry.DataObjectFactory;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -31,40 +33,33 @@ import java.util.List;
  * ==========================================================================
  *  READ ME BEFORE COMPILING
  * ==========================================================================
- * This class registers a custom Apoli "entity_action" type
- * ("fallenangel:divine_enchant") that data/origins/powers/divine_enchant.json
- * plugs into an "origins:active_self" power.
- *
- * The registration call in {@link #register()} (the ActionFactory /
- * ApoliRegistries part) is the single piece of this whole project that is
- * most likely to need a small tweak, because Apoli's internal Java API
- * (class/package names for factories and registries) has changed slightly
- * between versions - e.g. their own changelog for 1.21.1 alpha builds
- * mentions renaming "Active$Key" to "KeyBindingReference" that a
- * decompiled/mapped alpha 12 (matching gradle.properties) with your IDE and, if
- * "ActionFactory" or "ApoliRegistries" don't resolve exactly as written here,
- * look at one of Apoli's own built-in action classes (e.g. the source for
- * "clear_effect" or "spawn_particles" in the apoli-fabric GitHub repo) for
- * the exact factory/registration signature used by the version pinned in
- * gradle.properties, and mirror it here. The enchantment-picking logic
- * below (everything in applyDivineEnchant/pickRandomValidEnchantment) uses
- * plain vanilla/Fabric APIs and should not need changes.
+ * Reescrito para a API nova do Apoli (2.12.x / MC 1.21.1), que trocou o
+ * antigo sistema de ActionFactory por classes de ação (EntityAction) com
+ * um metodo accept(EntityActionContext). Se o registro em register()
+ * nao bater exatamente com a assinatura de DataObjectFactory.simple(...)
+ * dessa versao, o erro do compilador vai apontar exatamente onde -
+ * me manda esse erro que eu ajusto.
  * ==========================================================================
  */
-public class DivineEnchantAction {
+public class DivineEnchantAction extends EntityAction {
 
     public static final Identifier ID = Identifier.of(FallenAngelMod.MOD_ID, "divine_enchant");
 
-    public static void register() {
-        ActionFactory<Entity> factory = new ActionFactory<>(
-                ID,
-                new SerializableData(),
-                DivineEnchantAction::apply
-        );
-        Registry.register(ApoliRegistries.ENTITY_ACTION, ID, factory);
+    public DivineEnchantAction(SerializableData.Instance data) {
+        super(data);
     }
 
-    private static void apply(SerializableData.Instance data, Entity entity) {
+    public static void register() {
+        Registry.register(
+                ApoliRegistries.ENTITY_ACTION,
+                ID,
+                DataObjectFactory.simple(new SerializableData(), DivineEnchantAction::new)
+        );
+    }
+
+    @Override
+    public void accept(EntityActionContext context) {
+        Entity entity = context.entity();
         if (!(entity instanceof PlayerEntity player)) {
             return;
         }
@@ -84,11 +79,6 @@ public class DivineEnchantAction {
             return;
         }
 
-        // Only applies to weapons/tools (and anything else the player could
-        // legitimately enchant). We simply let "is there a valid
-        // enchantment for this item" decide - if the item is not a
-        // weapon/tool/armor etc. no enchantment will match, and nothing
-        // happens (ability is "wasted" rather than crashing).
         RegistryEntry<Enchantment> chosen = pickRandomValidEnchantment(serverWorld, stack, player.getRandom());
         if (chosen == null) {
             return;
@@ -106,13 +96,6 @@ public class DivineEnchantAction {
         spawnDivineSparkles(serverWorld, player);
     }
 
-    /**
-     * Picks a random enchantment that:
-     *  - Is a "primary" (normally obtainable) enchantment for this item
-     *    according to vanilla's own rules, so we never crash or produce an
-     *    invalid combination.
-     *  - Is not already present at its maximum level on the item.
-     */
     private static RegistryEntry<Enchantment> pickRandomValidEnchantment(ServerWorld world, ItemStack stack, Random random) {
         Registry<Enchantment> enchantmentRegistry = world.getRegistryManager().get(RegistryKeys.ENCHANTMENT);
         ItemEnchantmentsComponent current =
@@ -122,19 +105,16 @@ public class DivineEnchantAction {
         for (RegistryEntry<Enchantment> entry : enchantmentRegistry.streamEntries().toList()) {
             Enchantment enchantment = entry.value();
 
-            // Vanilla rule: an enchantment can be applied to an item if the
-            // item is in the enchantment's "primary items" item set.
             if (!isPrimaryItemFor(entry, stack)) {
                 continue;
             }
 
             int existingLevel = current.getLevel(entry);
             if (existingLevel >= enchantment.getMaxLevel()) {
-                continue; // already maxed out, pick something else
+                continue;
             }
 
-            // Skip if it would conflict with an enchantment already on the item.
-            if (conflictsWithExisting(entry, current, enchantmentRegistry)) {
+            if (conflictsWithExisting(entry, current)) {
                 continue;
             }
 
@@ -150,7 +130,6 @@ public class DivineEnchantAction {
     private static boolean isPrimaryItemFor(RegistryEntry<Enchantment> entry, ItemStack stack) {
         var primaryItems = entry.value().definition().primaryItems();
         if (primaryItems.isEmpty()) {
-            // No restriction defined -> fall back to the supported-items set.
             RegistryEntryList<net.minecraft.item.Item> supported = entry.value().definition().supportedItems();
             return supported.contains(stack.getRegistryEntry());
         }
@@ -159,8 +138,7 @@ public class DivineEnchantAction {
     }
 
     private static boolean conflictsWithExisting(RegistryEntry<Enchantment> candidate,
-                                                   ItemEnchantmentsComponent current,
-                                                   Registry<Enchantment> registry) {
+                                                   ItemEnchantmentsComponent current) {
         for (RegistryEntry<Enchantment> existingEnchant : current.getEnchantments()) {
             if (existingEnchant.equals(candidate)) {
                 continue;
@@ -186,9 +164,6 @@ public class DivineEnchantAction {
         spawnDivineSparkles(world, player);
     }
 
-    /** Pastel purple + white particle burst, used for both the apple
-     *  transformation and successful enchant, so the ability always
-     *  reads clearly as "something angelic just happened". */
     private static void spawnDivineSparkles(ServerWorld world, PlayerEntity player) {
         double x = player.getX();
         double y = player.getBodyY(0.5D);
