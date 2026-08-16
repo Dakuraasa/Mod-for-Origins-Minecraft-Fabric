@@ -23,6 +23,19 @@ jobs:
         with:
           gradle-version: "8.10"
 
+      - name: Inspect Apoli EntityAction API
+        run: |
+          JAR=$(find ~/.gradle -iname "apoli-*.jar" | grep -v sources | head -n 1)
+          echo "Using jar: $JAR"
+          mkdir -p /tmp/apoli-extract
+          cd /tmp/apoli-extract
+          unzip -o -q "$JAR" "io/github/apace100/apoli/action/*"
+          find . -name "*.class" | while read f; do
+            echo "===== $f ====="
+            javap -p "$f" || true
+          done
+        continue-on-error: true
+
       - name: Build with Gradle
         run: gradle build --no-daemon
 
