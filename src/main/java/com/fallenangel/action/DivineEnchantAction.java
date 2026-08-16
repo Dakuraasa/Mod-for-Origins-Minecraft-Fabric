@@ -35,7 +35,7 @@ public class DivineEnchantAction extends EntityActionType {
             ActionConfiguration.simple(ID, DivineEnchantAction::new);
 
     public static void register() {
-        Registry.register(ApoliRegistries.ENTITY_ACTION_TYPE, ID, CONFIG);
+        Registry.register(ApoliRegistries.ENTITY_ACTION_TYPE, ID, new DivineEnchantAction());
     }
 
     @Override
