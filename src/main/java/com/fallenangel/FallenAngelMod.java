@@ -1,6 +1,6 @@
 package com.fallenangel;
 
-import com.fallenangel.action.DivineEnchantAction;
+import io.github.apace100.origins.api.OriginsAPI;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -24,6 +24,11 @@ public class FallenAngelMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing Fallen Angel Origin addon");
-		DivineEnchantAction.register();
+		LOGGER.info("Registering Fallen Angel origin...");
+		
+		// Register the origin layer
+		OriginsAPI.registerOriginLayer(Identifier.of(MOD_ID, "origin"));
+		
+		LOGGER.info("Fallen Angel origin registered successfully!");
 	}
 }
